@@ -1,11 +1,12 @@
 #include <iostream>
 #include <cmath>
 #include <conio.h>
+#include <limits>
 
 #define X 0
 #define Y 1
-#define Z 2
 
+// KNN Model
 struct TemperatureData
 {
 	double temperature;
@@ -14,6 +15,7 @@ struct TemperatureData
 	std::string month;
 };
 
+// KNN Model
 double distance(double t1, double t2, int h1, int h2, int d1, int d2)
 {
 	return sqrt(pow(t1 - t2, 2) + pow(h1 - h2, 2)+ pow(d1 - d2, 2));
@@ -23,7 +25,6 @@ int validateInput(int lowest, int highest);
 int askInput();
 
 void linearRegression(bool &running);
-void multipleLinearRegression(bool &running);
 void knnModel(bool &running);
 
 int main()
@@ -44,11 +45,7 @@ int main()
 				std::cout << "=-=-=-=-=-=-=-=-=\n";
 				linearRegression(running);
 				break;
-			case 2: // MULTIPLE LINEAR REGRESSION MODEL
-				std::cout << "=-=-=-=-=-=-=-=-=\n";
-				multipleLinearRegression(running);
-				break;
-			case 3: // KNN MODEL
+			case 2: // KNN MODEL
 				std::cout << "=-=-=-=-=-=-=-=-=\n";
 				knnModel(running);
 				break;
@@ -65,9 +62,12 @@ int validateInput(int lowest, int highest)
 {
 	int input;
 	
+	// make sure the input is valid 
 	do
 	{
 		std::cin >> input;
+		std::cin.clear(); // clear any error flags at cin.
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // skip to new line and proceed with the program for no further issues.
 		input < lowest || input > highest ? std::cout << "Please input a number from " << lowest << "-" << highest << ":" : std::cout << "";
 	}while(input < lowest || input > highest);
 		
@@ -78,12 +78,15 @@ int askInput()
 {
 	int input;
 	
+	// make sure the input is valid 
 	do
 	{
-		std::cout << "What type of machine learning model would you like to use:\n1) Linear Regression Model\n2) Multiple Linear Regression Model\n3) KNN Model\nInput: ";
+		std::cout << "What type of machine learning model would you like to use:\n1) Linear Regression Model\n2) KNN Model\nInput: ";
 		std::cin >> input;
-		input < 0 || input > 3 ? std::cout << input << " is not an option!\n" : std::cout << "";
-	}while(input < 0 || input > 3);
+		std::cin.clear(); // clear any error flags at cin.
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // skip to new line and proceed with the program for no further issues.
+		input < 0 || input > 2 ? std::cout << input << " is not an option!\n" : std::cout << "";
+	}while(input < 0 || input > 2);
 		
 	return input;
 }
@@ -97,9 +100,26 @@ void linearRegression(bool &running)
 	
 	double coords[][sampleSize] = 
 	{
+		// Creating of dataset:
 		{0,1,2,3,4}, // X COORDINATE
 		{30,28.85,27.7,26.55,25.4} // Y COORDINATES
 	};
+	
+	// Request the user if they'd like to see the data
+	std::cout << "Would you like to see the data before prediction (Type 1 if Yes)?: ";
+	input = validateInput(1,1);
+	
+	if(input == 1)
+	{
+		// Show the data
+		std::cout << "===========================\n";
+		for(int i = 0; i < sampleSize; i++)
+		{
+			std::cout << i + 1 << ") Time: " << coords[X][i] << " | Temperature: " << coords[Y][i] << std::endl;
+		}
+		std::cout << "===========================\n";
+	}
+	input = 0;
 	
 	double sumX = 0, sumY = 0;
 	
@@ -139,8 +159,7 @@ void linearRegression(bool &running)
 	else
 	{
 		std::cout << "Enter the temperature in celcius: ";
-		double newY;
-		std::cin >> newY;
+		double newY = validateInput(-1e9, 1e9);
 		
 		double predictedX = (newY - xIntercept) / slope;
 		
@@ -156,17 +175,13 @@ void linearRegression(bool &running)
 	std::cout << "------------------\n";
 }
 
-void multipleLinearRegression(bool &running)
-{
-	// code
-}
-
 void knnModel(bool &running)
 {
 	int input;
 	// -------------------------- DATA TRAINING --------------------------
 	TemperatureData dataset[] = 
 	{
+		// Inputting Dataset
 		{ 15.2,  6,  1,  "January" },
 		{ 22.5, 14, 12, "February" },
 		{ 18.9,  9, 20, "March" },
@@ -193,14 +208,30 @@ void knnModel(bool &running)
 		{ 17.2,  7, 15, "March" }
 	};
 	
+	// Calculating the sample size
 	int sampleSize = sizeof(dataset) / sizeof(dataset[0]);
 	
-	// User input
+	// Request the user if they'd like to see the data
+	std::cout << "Would you like to see the data before prediction (Type 1 if Yes)?: ";
+	input = validateInput(1,1);
+	
+	if(input == 1)
+	{
+		// Show the data
+		std::cout << "===========================\n";
+		for(int i = 0; i < sampleSize; i++)
+		{
+			std::cout << i + 1 << ") Temperature: " << dataset[i].temperature << " | Hour: " << dataset[i].hour << " | Day: " << dataset[i].day << " | Month: " << dataset[i].month << std::endl;
+		}
+		std::cout << "===========================\n";
+	}
+	input = 0;
+	// ------------------------------------- PREDICTING INPUT -------------------------------------
 	double temp, hour, day;
 	
 	std::cout << "Enter new location data:\n";
 	std::cout << "Average temperature (C): ";
-	std::cin >> temp;
+	temp = validateInput(-1e9, 1e9);
 	std::cout << "Hour (0-23): ";
 	hour = validateInput(0,23);
 	std::cout << "Day (1-31): ";
@@ -210,6 +241,7 @@ void knnModel(bool &running)
 	double minDist = 1e9; // 1 billion
 	int bestMatch = -1;
 	
+	// Search Algorithm to find the closest to the input data
 	for (int i = 0; i < sampleSize; i++) 
 	{
 		double d = distance(temp, dataset[i].temperature, hour, dataset[i].hour, day, dataset[i].day);
