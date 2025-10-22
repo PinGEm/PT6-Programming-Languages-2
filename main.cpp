@@ -107,7 +107,9 @@ void linearRegression(bool &running)
 	
 	// Request the user if they'd like to see the data
 	std::cout << "Would you like to see the data before prediction (Type 1 if Yes)?: ";
-	input = validateInput(1,1);
+	std::cin >> input;
+	std::cin.clear(); // clear any error flags at cin.
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // skip to new line and proceed with the program for no further issues.
 	
 	if(input == 1)
 	{
@@ -213,7 +215,9 @@ void knnModel(bool &running)
 	
 	// Request the user if they'd like to see the data
 	std::cout << "Would you like to see the data before prediction (Type 1 if Yes)?: ";
-	input = validateInput(1,1);
+	std::cin >> input;
+	std::cin.clear(); // clear any error flags at cin.
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // skip to new line and proceed with the program for no further issues.
 	
 	if(input == 1)
 	{
